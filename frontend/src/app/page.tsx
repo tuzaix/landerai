@@ -6,9 +6,11 @@ import Features from '@/components/features/Features';
 import Testimonials from '@/components/testimonials/Testimonials';
 import Form from '@/components/forms/Form';
 import CTA from '@/components/cta/CTA';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
+  const { token, loading } = useAuth();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -21,12 +23,14 @@ export default function Home() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  const buttonLink = !loading && token ? "/admin/dashboard" : "/login";
+
   const heroData = {
     title: "打造高转化率的智能落地页",
     subtitle: "AI驱动的智能落地页生成系统，帮助您快速创建专业的营销页面，提升转化率",
-    buttonText: "立即开始",
-    buttonLink: "#features",
-    imageUrl: "https://via.placeholder.com/600x400",
+    buttonText: "免费使用",
+    buttonLink: buttonLink,
+    imageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop",
     isMobile
   };
 
@@ -103,8 +107,8 @@ export default function Home() {
   const ctaData = {
     title: "准备好提升您的转化率了吗？",
     subtitle: "立即开始使用我们的AI智能落地页系统",
-    buttonText: "免费试用",
-    buttonLink: "#form",
+    buttonText: "免费使用",
+    buttonLink: buttonLink,
     isMobile
   };
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { HeroProps } from '@/types/components';
 import { getFullUrl } from '@/config';
 
@@ -23,12 +24,12 @@ const Hero: React.FC<HeroProps> = ({
           <p className={`text-gray-600 mb-6 ${isMobile ? 'text-base' : 'text-xl'}`}>
             {subtitle}
           </p>
-          <a 
+          <Link 
             href={buttonLink}
             className="inline-block px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
             {buttonText}
-          </a>
+          </Link>
         </div>
         <div className={`${isMobile ? 'w-full' : 'w-1/2'}`}>
           <img 

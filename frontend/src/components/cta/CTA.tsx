@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { CtaProps } from '@/types/components';
 
 const CTA: React.FC<CtaProps> = ({ title, subtitle, buttonText, buttonLink, isMobile }) => {
@@ -11,12 +12,12 @@ const CTA: React.FC<CtaProps> = ({ title, subtitle, buttonText, buttonLink, isMo
         <p className={`text-blue-100 mb-8 ${isMobile ? 'text-base' : 'text-xl'}`}>
           {subtitle}
         </p>
-        <a 
+        <Link 
           href={buttonLink}
           className="inline-block px-8 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-gray-100 transition-colors"
         >
           {buttonText}
-        </a>
+        </Link>
       </div>
     </section>
   );
