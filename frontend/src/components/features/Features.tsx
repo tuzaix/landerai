@@ -6,9 +6,9 @@ import { Zap, Layout, BarChart3 } from 'lucide-react';
 const Features: React.FC<FeatureProps> = ({ features, isMobile }) => {
   const getIcon = (iconName: string) => {
     switch (iconName) {
-      case 'Zap': return <Zap className="w-8 h-8 text-blue-600" />;
-      case 'Layout': return <Layout className="w-8 h-8 text-blue-600" />;
-      case 'BarChart3': return <BarChart3 className="w-8 h-8 text-blue-600" />;
+      case 'Zap': return <Zap className="w-8 h-8" />;
+      case 'Layout': return <Layout className="w-8 h-8" />;
+      case 'BarChart3': return <BarChart3 className="w-8 h-8" />;
       default: return null;
     }
   };
