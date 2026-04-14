@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     # JWT配置
     SECRET_KEY: str = "your-secret-key-here-change-this-in-production"
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7天，增加过期时间以减少“无效凭证”报错
     
     # CORS配置
     ALLOWED_HOSTS: List[str] = ["*"]

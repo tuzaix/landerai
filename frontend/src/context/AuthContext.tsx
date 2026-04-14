@@ -29,6 +29,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
 
+  const logout = () => {
+    setToken(null)
+    setUser(null)
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    delete axios.defaults.headers.common['Authorization']
+    router.push('/login')
+  }
+
   useEffect(() => {
     // 初始化时从 localStorage 恢复
     const savedToken = localStorage.getItem('token')
@@ -41,6 +50,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`
     }
     setLoading(false)
+
+    // 添加响应拦截器处理 401 错误
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          // 如果后端返回 401，且不是在登录页本身，则执行退出登录并跳转
+          if (window.location.pathname !== '/login') {
+            logout()
+          }
+        }
+        return Promise.reject(error)
+      }
+    )
+
+    return () => {
+      axios.interceptors.response.eject(interceptor)
+    }
   }, [])
 
   // 路由守卫逻辑
@@ -64,15 +91,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('user', JSON.stringify(newUser))
     axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
     router.push('/admin/dashboard')
-  }
-
-  const logout = () => {
-    setToken(null)
-    setUser(null)
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    delete axios.defaults.headers.common['Authorization']
-    router.push('/login')
   }
 
   return (

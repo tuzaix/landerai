@@ -278,6 +278,7 @@ server {
 
     # 后端 API 代理
     location /api {
+        client_max_body_size 50M; # 允许上传最大 50MB 的文件，解决 413 Request Entity Too Large 错误
         proxy_pass http://127.0.0.1:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
