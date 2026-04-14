@@ -5,6 +5,7 @@ backend/*.pyc
 backend/.env
 backend/uploads/
 backend/landerai.db
+backend/app/core/__pycache__
 
 # Node.js
 frontend/node_modules/

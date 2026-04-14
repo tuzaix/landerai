@@ -37,17 +37,17 @@ export default function Home() {
   const featuresData = {
     features: [
       {
-        icon: "https://via.placeholder.com/64x64",
+        icon: "Zap",
         title: "AI智能生成",
         description: "基于AI技术，自动生成专业的营销文案和设计"
       },
       {
-        icon: "https://via.placeholder.com/64x64",
+        icon: "Layout",
         title: "响应式设计",
         description: "完美适配移动端和桌面端，提供最佳用户体验"
       },
       {
-        icon: "https://via.placeholder.com/64x64",
+        icon: "BarChart3",
         title: "数据分析",
         description: "实时跟踪用户行为，提供详细的转化分析报告"
       }
@@ -60,19 +60,19 @@ export default function Home() {
       {
         name: "张经理",
         role: "市场总监",
-        avatar: "https://via.placeholder.com/48x48",
+        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=200&auto=format&fit=crop",
         content: "使用这个系统后，我们的转化率提升了30%，非常满意！"
       },
       {
         name: "李总监",
         role: "营销总监",
-        avatar: "https://via.placeholder.com/48x48",
+        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&auto=format&fit=crop",
         content: "操作简单，功能强大，帮助我们节省了大量时间和成本。"
       },
       {
         name: "王经理",
         role: "产品经理",
-        avatar: "https://via.placeholder.com/48x48",
+        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop",
         content: "AI生成的内容质量很高，大大提高了我们的工作效率。"
       }
     ],
@@ -113,17 +113,17 @@ export default function Home() {
   };
 
   return (
-    <main>
+    <main className="bg-white">
       <Hero {...heroData} />
-      <section id="features">
+      <section id="features" className="bg-white">
         <Features {...featuresData} />
       </section>
       <Testimonials {...testimonialsData} />
       <section id="form">
-        <div className="py-16 bg-gray-50">
-          <div className="max-w-4xl mx-auto text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">联系我们</h2>
-            <p className="text-xl text-gray-600">填写表单，我们将为您提供专业的解决方案</p>
+        <div className="py-20 bg-slate-50">
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <h2 className="text-4xl font-black text-slate-900 mb-6 tracking-tight">联系我们</h2>
+            <p className="text-xl text-slate-600 font-medium">填写表单，我们将为您提供专业的解决方案</p>
           </div>
           <Form {...formData} />
         </div>
