@@ -38,9 +38,6 @@ const Hero: React.FC<HeroProps> = ({
             >
               {buttonText}
             </Link>
-            <button className="px-10 py-4 bg-white text-slate-700 font-bold rounded-xl border border-slate-200 hover:bg-slate-50 transition-all">
-              了解详情
-            </button>
           </div>
         </div>
         <div className={`${isMobile ? 'w-full' : 'w-1/2'} relative`}>
