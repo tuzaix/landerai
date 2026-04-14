@@ -7,7 +7,8 @@
 ### 更新系统并安装基础依赖
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y python3-pip python3-venv git nginx mysql-server redis-server curl
+# 安装基础服务及 MySQL 编译依赖 (Alembic 迁移需要)
+sudo apt install -y python3-pip python3-venv git nginx mysql-server redis-server curl libmysqlclient-dev python3-dev
 ```
 
 ### 安装 Node.js (使用 NVM)
@@ -34,6 +35,41 @@ sudo apt install mysql-server -y
 sudo mysql_secure_installation
 ```
 
+### 服务管理与自启动
+```bash
+# 启动 MySQL 服务
+sudo systemctl start mysql
+
+# 设置开机自启动
+sudo systemctl enable mysql
+
+# 查看服务状态
+sudo systemctl status mysql
+
+# 重启服务 (修改配置文件后需执行)
+sudo systemctl restart mysql
+```
+
+### 优化配置 (可选)
+编辑 MySQL 配置文件以优化性能和支持 utf8mb4：
+```bash
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+```
+在 `[mysqld]` 模块下添加或修改：
+```conf
+[mysqld]
+# 字符集配置
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# 连接优化
+max_connections = 500
+innodb_buffer_pool_size = 512M # 根据服务器内存调整，通常设为总内存的 50%-70%
+
+# 允许远程访问 (如果需要从外部连接，请修改为 0.0.0.0 并配置防火墙)
+bind-address = 127.0.0.1
+```
+
 ### 初始化 LanderAI 数据库
 ```bash
 sudo mysql -u root
@@ -51,6 +87,27 @@ FLUSH PRIVILEGES;
 
 -- 退出
 EXIT;
+```
+
+### 修改指定账号密码
+如果需要修改已有用户的密码，可以使用以下命令：
+```sql
+-- 切换到 mysql 数据库
+USE mysql;
+
+-- 修改密码 (替换 'landerai_user' 和 'new_secure_password')
+ALTER USER 'landerai_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'new_secure_password';
+
+ALTER USER 'landerai'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Landerai_2026';
+ALTER USER 'landerai'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'Landerai_2026';
+ALTER USER 'landerai'@'%' IDENTIFIED WITH mysql_native_password BY 'Landerai_2026';
+
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Root_2026';
+ALTER USER 'root'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY 'Root_2026';
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'Root_2026';
+
+-- 刷新权限
+FLUSH PRIVILEGES;
 ```
 
 ## 3. Redis 安装与配置
@@ -98,7 +155,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
-pip install gunicorn  # 生产环境使用 gunicorn
+pip install gunicorn mysqlclient  # 生产服务器和 Alembic 迁移需要
 ```
 
 ### 配置环境变量
@@ -109,12 +166,48 @@ nano .env
 修改 `.env` 中的数据库连接字符串：
 `DATABASE_URL=mysql+aiomysql://landerai_user:your_secure_password@localhost:3306/landerai`
 
+### 初始化数据库数据
+在完成数据库创建和依赖安装后，执行以下步骤初始化数据：
+
+#### 1. 创建表结构
+```bash
+# 进入后端目录并激活虚拟环境
+cd /var/www/landerai/backend
+source venv/bin/activate
+
+# 执行初始化脚本创建所有数据表
+python init_db.py
+```
+*注意：如果 `init_db.py` 在创建数据库步骤报错（通常是因为 root 密码不匹配），可以忽略，只要你在之前的步骤中已经手动创建了 `landerai` 数据库，该脚本会自动继续执行建表操作。*
+
+#### 2. 导入演示数据 (可选)
+如果你需要一些示例页面和初始账号来测试系统，可以运行：
+```bash
+python seed_data.py
+```
+*这会创建一个默认团队和两个初始账号：*
+- *普通管理员: `admin@landerai.com` / `admin123`*
+- *超级管理员: `super@landerai.com` / `admin123`*
+
+#### 3. 创建自定义超级管理员
+建议运行以下脚本创建你自己的超级管理员账号：
+```bash
+python create_super_admin.py --email your@email.com --password your_password
+```
+
 ### 运行数据库迁移 (如果使用了 Alembic)
 ```bash
 alembic upgrade head
 # 或者运行初始化脚本
 python init_db.py
 ```
+
+### 创建超级管理员
+使用提供的脚本创建第一个超级管理员账号：
+```bash
+python create_super_admin.py --email your@email.com --password your_password
+```
+*如果不带参数，默认创建 `super@landerai.com`，密码为 `Landerai_2026`。*
 
 ### 创建 Systemd 服务
 ```bash

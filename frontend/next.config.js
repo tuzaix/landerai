@@ -1,16 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // 生产环境建议开启 standalone 模式，优化部署体积
+  output: 'standalone',
+  
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:8000/api/:path*',
+        // 部署时确保此处端口与后端一致，或者通过 Nginx 处理代理
+        destination: 'http://127.0.0.1:8000/api/:path*',
       },
     ];
   },
-  webpack: (config, { isServer }) => {
-    // 忽略一些系统目录以避免 Watchpack 报错 (EINVAL: invalid argument, lstat 'D:\System Volume Information')
-    if (!isServer) {
+  // Webpack 配置仅在开发模式下解决 Windows 特定目录报错，部署到 Ubuntu 时不生效
+  webpack: (config, { isServer, dev }) => {
+    if (dev && !isServer) {
       config.watchOptions = {
         ...config.watchOptions,
         ignored: [

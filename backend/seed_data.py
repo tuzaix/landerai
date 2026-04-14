@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
 from app.models import Base, Team, User, Page, Lead, Asset
 
+# 使用全局配置
 engine = create_async_engine(settings.DATABASE_URL, echo=False)
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 

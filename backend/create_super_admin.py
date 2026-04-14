@@ -20,12 +20,7 @@ def get_password_hash(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
 
 async def create_super_admin(email, password, team_name):
-    database_url = os.getenv("DATABASE_URL")
-    if not database_url:
-        print("错误: 未在 .env 文件中找到 DATABASE_URL")
-        return
-
-    engine = create_async_engine(database_url)
+    engine = create_async_engine(settings.DATABASE_URL)
     AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with AsyncSessionLocal() as session:

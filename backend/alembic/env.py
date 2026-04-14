@@ -22,6 +22,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 from app.db.database import Base
 from app.models import *
+from app.core.config import settings
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
@@ -42,7 +43,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = settings.SYNC_DATABASE_URL
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -62,7 +63,7 @@ def run_migrations_online() -> None:
 
     """
     # 使用同步引擎进行迁移
-    sync_url = config.get_main_option("sqlalchemy.url").replace("+aiomysql", "")
+    sync_url = settings.SYNC_DATABASE_URL
     
     connectable = engine_from_config(
         {"sqlalchemy.url": sync_url},

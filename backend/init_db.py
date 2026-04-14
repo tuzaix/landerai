@@ -22,17 +22,17 @@ async def create_database():
     try:
         # Connect to MySQL server (not specific database)
         engine = create_async_engine(
-            "mysql+aiomysql://root:root@127.0.0.1:3306/mysql",
+            settings.MYSQL_ROOT_URL,
             echo=True
         )
         
         async with engine.connect() as conn:
             # Create database
             await conn.execute(
-                text("CREATE DATABASE IF NOT EXISTS lander_ai CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
+                text(f"CREATE DATABASE IF NOT EXISTS {settings.DB_NAME} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
             )
             await conn.commit()
-            print("✅ Database 'lander_ai' created successfully")
+            print(f"✅ Database '{settings.DB_NAME}' created successfully")
             
     except Exception as e:
         print(f"❌ Failed to create database: {e}")
@@ -84,11 +84,11 @@ async def main():
     print("🗄️  Starting database initialization...")
     print("=" * 50)
     
-    # Step 1: Create database
-    print("\n📊 Step 1: Creating database...")
-    if not await create_database():
-        print("❌ Database creation failed")
-        return False
+    # # Step 1: Create database
+    # print("\n📊 Step 1: Creating database...")
+    # if not await create_database():
+    #     print("❌ Database creation failed")
+    #     return False
     
     # Step 2: Create tables
     print("\n📋 Step 2: Creating tables...")
