@@ -303,11 +303,92 @@ sudo systemctl restart nginx
 
 ## 7. SSL 配置 (HTTPS)
 
-使用 Certbot 自动获取证书：
-```bash
-sudo apt install certbot python3-certbot-nginx -y
-sudo certbot --nginx -d yourdomain.com
-```
+### 获取免费证书 (Let's Encrypt)
+使用 Certbot 自动获取证书是最简单的方式。Certbot 会自动验证你的域名所有权，并自动修改 Nginx 配置文件。
+
+1. **安装 Certbot**:
+   ```bash
+   sudo apt update
+   sudo apt install certbot python3-certbot-nginx -y
+   ```
+
+2. **获取并部署证书**:
+   运行以下命令，Certbot 会引导你完成证书申请，并询问是否自动将 HTTP 流量重定向到 HTTPS（推荐选择 2: Redirect）。
+   ```bash
+   sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+   ```
+
+3. **验证自动续期**:
+   Let's Encrypt 证书有效期为 90 天，Certbot 默认会配置一个 cron 任务或 systemd 计时器来自动续期。你可以通过以下命令测试续期流程：
+   ```bash
+   sudo certbot renew --dry-run
+   ```
+
+### 手动配置证书 (已有证书文件)
+如果你已经从其他渠道获取了证书（如阿里云、腾讯云申请的 .crt 和 .key 文件），请按照以下步骤配置：
+
+1. **上传证书到服务器**:
+   通常建议放在 `/etc/nginx/ssl/` 目录下。
+
+2. **修改 Nginx 配置**:
+   ```nginx
+   server {
+       listen 443 ssl;
+       server_name yourdomain.com;
+
+       ssl_certificate /etc/nginx/ssl/yourdomain.com.crt;
+       ssl_certificate_key /etc/nginx/ssl/yourdomain.com.key;
+
+       # 推荐的安全配置
+       ssl_protocols TLSv1.2 TLSv1.3;
+       ssl_ciphers HIGH:!aNULL:!MD5;
+       ssl_prefer_server_ciphers on;
+
+       # ... 其他 location 配置与 HTTP 相同 ...
+   }
+
+   # HTTP 重定向到 HTTPS
+   server {
+       listen 80;
+       server_name yourdomain.com;
+       return 301 https://$host$request_uri;
+   }
+   ```
+
+### 证书续签 (Renewal)
+
+#### 1. Let's Encrypt (Certbot) 续签
+如果使用 Certbot，证书通常会自动续签。如果证书已经过期，可以尝试以下步骤：
+
+- **手动强制续签**:
+  ```bash
+  sudo certbot renew
+  ```
+  如果证书已过期，此命令会尝试为所有即将到期或已到期的域名更新证书。
+
+- **检查自动续期服务**:
+  确保 Certbot 的计时器正在运行：
+  ```bash
+  sudo systemctl status certbot.timer
+  ```
+
+- **常见问题排查**:
+  - **80 端口占用**: Certbot 在验证时需要访问 `.well-known` 目录。确保 Nginx 正在运行且没有防火墙阻止 80 端口。
+  - **手动强制重新获取**: 如果 `renew` 失败，可以重新运行获取命令：
+    ```bash
+    sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+    ```
+
+#### 2. 手动证书续签
+如果你是手动配置的证书（如从阿里云下载）：
+1. 在证书提供商处重新申请或续费证书。
+2. 下载新的证书文件（`.crt` 和 `.key`）。
+3. 将新文件上传到服务器并覆盖旧文件（建议先备份旧文件）。
+4. 检查 Nginx 配置并重启：
+   ```bash
+   sudo nginx -t
+   sudo systemctl restart nginx
+   ```
 
 ## 8. 常用维护命令
 
