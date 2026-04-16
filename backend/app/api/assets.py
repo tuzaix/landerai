@@ -6,9 +6,11 @@ import uuid
 import os
 
 from app.db.database import get_db
-from app.models import Asset, Team
+from app.models import Asset, Team, User
 from app.schemas import AssetSchema, AssetCreateRequest
 from app.core.config import settings
+
+from app.api.auth import get_current_user
 
 router = APIRouter()
 
@@ -17,7 +19,8 @@ async def upload_asset(
     file: UploadFile = File(...),
     name: str = None,
     tags: str = None,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """上传物料文件"""
     if not name:
@@ -38,7 +41,7 @@ async def upload_asset(
     
     # 创建物料记录
     db_asset = Asset(
-        team_id=1,  # 默认团队ID
+        team_id=current_user.team_id,
         name=name,
         type=file.content_type or "application/octet-stream",
         original_url=f"/uploads/{unique_filename}",
@@ -60,10 +63,11 @@ async def get_assets(
     asset_type: str = None,
     search: str = None,
     tag: str = None,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """获取物料列表"""
-    query = select(Asset)
+    query = select(Asset).where(Asset.team_id == current_user.team_id)
     
     if asset_type:
         query = query.where(Asset.type == asset_type)
@@ -86,18 +90,22 @@ async def get_assets(
 @router.get("/{asset_id}", response_model=AssetSchema)
 async def get_asset(
     asset_id: int,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """获取指定物料"""
     result = await db.execute(
-        select(Asset).where(Asset.id == asset_id)
+        select(Asset).where(
+            Asset.id == asset_id,
+            Asset.team_id == current_user.team_id
+        )
     )
     asset = result.scalar_one_or_none()
     
     if not asset:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="物料不存在"
+            detail="物料不存在或无权访问"
         )
     
     return asset
@@ -105,18 +113,22 @@ async def get_asset(
 @router.delete("/{asset_id}")
 async def delete_asset(
     asset_id: int,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """删除物料"""
     result = await db.execute(
-        select(Asset).where(Asset.id == asset_id)
+        select(Asset).where(
+            Asset.id == asset_id,
+            Asset.team_id == current_user.team_id
+        )
     )
     asset = result.scalar_one_or_none()
     
     if not asset:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="物料不存在"
+            detail="物料不存在或无权访问"
         )
     
     # 删除文件

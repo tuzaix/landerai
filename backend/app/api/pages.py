@@ -5,7 +5,7 @@ from typing import List, Optional
 from datetime import datetime
 
 from app.db.database import get_db
-from app.models import Page, Team
+from app.models import Page, Team, User
 from app.schemas import (
     PageCreateRequest, 
     PageSchema, 
@@ -15,7 +15,25 @@ from app.schemas import (
     PageListItemSchema
 )
 
+from app.api.auth import get_current_user
+
 router = APIRouter()
+
+async def check_page_access(db: AsyncSession, page_id: int, team_id: int) -> Page:
+    """检查页面是否存在且属于当前团队"""
+    result = await db.execute(
+        select(Page).where(
+            Page.id == page_id,
+            Page.team_id == team_id
+        )
+    )
+    page = result.scalar_one_or_none()
+    if not page:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="页面不存在或无权访问"
+        )
+    return page
 
 async def generate_unique_slug(db: AsyncSession, base_slug: str) -> str:
     """生成唯一的 slug，避免与现有页面冲突"""
@@ -30,14 +48,15 @@ async def generate_unique_slug(db: AsyncSession, base_slug: str) -> str:
 @router.post("/", response_model=PageSchema)
 async def create_page(
     request: PageCreateRequest,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """创建新页面"""
     base_slug = request.name.lower().replace(" ", "-")
     slug = await generate_unique_slug(db, base_slug)
     
     db_page = Page(
-        team_id=1,
+        team_id=current_user.team_id,
         name=request.name,
         slug=slug,
         custom_domain=request.custom_domain,
@@ -61,10 +80,11 @@ async def get_pages(
     limit: int = Query(100, ge=1, le=500),
     search: Optional[str] = None,
     is_published: Optional[bool] = None,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """获取页面列表，支持搜索、状态筛选和分页"""
-    query = select(Page)
+    query = select(Page).where(Page.team_id == current_user.team_id)
     
     if search:
         query = query.where(Page.name.ilike(f"%{search}%"))
@@ -83,16 +103,19 @@ async def get_page_by_slug(
     slug: str,
     db: AsyncSession = Depends(get_db)
 ):
-    """通过 slug 获取公开页面配置，同时增加访问计数"""
+    """通过 slug 获取公开页面配置，同时增加访问计数 (公开接口，不进行租户隔离验证)"""
     result = await db.execute(
-        select(Page).where(Page.slug == slug)
+        select(Page).where(
+            Page.slug == slug,
+            Page.is_published == True  # 仅允许访问已发布的页面
+        )
     )
     page = result.scalar_one_or_none()
     
     if not page:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="页面不存在"
+            detail="页面不存在或未发布"
         )
     
     # 增加访问计数
@@ -110,15 +133,17 @@ async def get_page_by_slug(
 
 @router.get("/stats/summary")
 async def get_pages_stats_summary(
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """获取所有页面的总体统计摘要"""
+    team_id = current_user.team_id
     # 从 Page 表汇总计数器数据
     result = await db.execute(
         select(
             func.sum(Page.view_count).label("total_visits"),
             func.sum(Page.conversion_count).label("total_conversions")
-        )
+        ).where(Page.team_id == team_id)
     )
     row = result.one()
     total_visits = row.total_visits or 0
@@ -126,12 +151,17 @@ async def get_pages_stats_summary(
     
     # 总线索量 (从 Lead 模型)
     from app.models import Lead
-    leads_result = await db.execute(select(func.count(Lead.id)))
+    leads_result = await db.execute(
+        select(func.count(Lead.id))
+        .join(Page, Lead.page_id == Page.id)
+        .where(Page.team_id == team_id)
+    )
     total_leads = leads_result.scalar() or 0
     
     # 活跃页面数
     pages_result = await db.execute(
         select(func.count(Page.id))
+        .where(Page.team_id == team_id)
         .where(Page.is_published == True)
     )
     active_pages = pages_result.scalar() or 0
@@ -154,39 +184,21 @@ async def get_pages_stats_summary(
 @router.get("/{page_id}", response_model=PageSchema)
 async def get_page(
     page_id: int,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """获取指定页面详情"""
-    result = await db.execute(
-        select(Page).where(Page.id == page_id)
-    )
-    page = result.scalar_one_or_none()
-    
-    if not page:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="页面不存在"
-        )
-    
-    return page
+    return await check_page_access(db, page_id, current_user.team_id)
 
 @router.put("/{page_id}", response_model=PageSchema)
 async def update_page(
     page_id: int,
     request: PageUpdateRequest,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """更新页面配置"""
-    result = await db.execute(
-        select(Page).where(Page.id == page_id)
-    )
-    page = result.scalar_one_or_none()
-    
-    if not page:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="页面不存在"
-        )
+    page = await check_page_access(db, page_id, current_user.team_id)
     
     # 收集需要更新的字段
     update_data = {}
@@ -245,19 +257,11 @@ async def update_page(
 async def toggle_publish_status(
     page_id: int,
     request: PagePublishRequest,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """切换页面发布状态"""
-    result = await db.execute(
-        select(Page).where(Page.id == page_id)
-    )
-    page = result.scalar_one_or_none()
-    
-    if not page:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="页面不存在"
-        )
+    page = await check_page_access(db, page_id, current_user.team_id)
     
     update_data = {
         "is_published": request.is_published,
@@ -281,19 +285,11 @@ async def toggle_publish_status(
 async def copy_page(
     page_id: int,
     request: PageCopyRequest,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """复制页面为新页面"""
-    result = await db.execute(
-        select(Page).where(Page.id == page_id)
-    )
-    page = result.scalar_one_or_none()
-    
-    if not page:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="页面不存在"
-        )
+    page = await check_page_access(db, page_id, current_user.team_id)
     
     # 生成新 slug
     base_slug = request.name.lower().replace(" ", "-")
@@ -332,19 +328,11 @@ async def copy_page(
 @router.delete("/{page_id}")
 async def delete_page(
     page_id: int,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """删除页面，同时删除关联的线索和事件"""
-    result = await db.execute(
-        select(Page).where(Page.id == page_id)
-    )
-    page = result.scalar_one_or_none()
-    
-    if not page:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="页面不存在"
-        )
+    page = await check_page_access(db, page_id, current_user.team_id)
     
     # 导入关联模型
     from app.models import Lead
