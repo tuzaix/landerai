@@ -106,6 +106,7 @@ export default function SuperAdminPage() {
       }
       await axios.post(`${API_BASE_URL}/super-admin/teams`, payload, config)
       setShowUploadModal(false)
+      alert(`租户添加成功！\n\n默认管理员账号：${newTeam.notify_email}\n初始密码：admin123\n\n请告知租户及时修改密码。`)
       setNewTeam({
         name: '',
         notify_email: '',

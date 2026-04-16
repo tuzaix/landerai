@@ -7,7 +7,7 @@ from datetime import datetime
 from app.db.database import get_db
 from app.models import Team, User, Page, Lead, Asset
 from app.schemas import TeamSchema, SuperAdminTeamUpdateRequest, TeamCreateRequest
-from app.api.auth import get_current_user
+from app.api.auth import get_current_user, get_password_hash
 
 router = APIRouter()
 
@@ -35,7 +35,8 @@ async def create_team(
     db: AsyncSession = Depends(get_db),
     admin: User = Depends(check_super_admin)
 ):
-    """创建新租户团队"""
+    """创建新租户团队，并自动创建默认管理员用户"""
+    # 1. 创建团队
     db_team = Team(
         name=request.name,
         notify_email=request.notify_email,
@@ -44,6 +45,29 @@ async def create_team(
         expires_at=request.expires_at
     )
     db.add(db_team)
+    await db.flush()  # 获取团队 ID
+    
+    # 2. 如果提供了通知邮箱，则自动创建默认管理员用户
+    if request.notify_email:
+        # 检查邮箱是否已被占用
+        result = await db.execute(select(User).where(User.email == request.notify_email))
+        if result.scalar_one_or_none():
+            await db.rollback()
+            raise HTTPException(
+                status_code=400,
+                detail=f"邮箱 {request.notify_email} 已被其他用户占用，无法作为租户管理员邮箱"
+            )
+            
+        # 创建默认管理员，初始密码为 admin123
+        default_password = "admin123"
+        db_user = User(
+            team_id=db_team.id,
+            email=request.notify_email,
+            password_hash=get_password_hash(default_password),
+            role="admin"
+        )
+        db.add(db_user)
+    
     await db.commit()
     await db.refresh(db_team)
     return db_team
