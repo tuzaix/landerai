@@ -53,6 +53,7 @@ CREATE TABLE `pages` (
   `seo_title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `seo_description` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `seo_keywords` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `enable_age_verification` tinyint(1) NOT NULL DEFAULT '0',
   `published_at` datetime DEFAULT NULL,
   `meta` json DEFAULT NULL,
   `thumbnail_url` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,

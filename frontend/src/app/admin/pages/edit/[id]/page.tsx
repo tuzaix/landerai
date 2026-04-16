@@ -77,6 +77,7 @@ export default function EditPage() {
   const id = params?.id as string
   const [pageName, setPageName] = useState('加载中...')
   const [slug, setSlug] = useState('')
+  const [enableAgeVerification, setEnableAgeVerification] = useState(false)
   const [components, setComponents] = useState<ComponentInstance[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -90,9 +91,10 @@ export default function EditPage() {
         headers: { Authorization: `Bearer ${token}` }
       }
       const response = await axios.get(`${API_BASE_URL}/pages/${id}`, config)
-      const { name, slug, config: pageConfig } = response.data
+      const { name, slug, enable_age_verification, config: pageConfig } = response.data
       setPageName(name)
       setSlug(slug)
+      setEnableAgeVerification(!!enable_age_verification)
       setComponents(pageConfig.components || [])
     } catch (err) {
       console.error('Failed to fetch page:', err)
@@ -151,6 +153,7 @@ export default function EditPage() {
       setSaving(true)
       const payload = {
         name: pageName,
+        enable_age_verification: enableAgeVerification,
         config: { components }
       }
       
@@ -227,6 +230,27 @@ export default function EditPage() {
       <div className="flex-1 flex overflow-hidden h-[calc(100vh-73px)]">
         {/* 左侧组件列表 */}
         <aside className="w-80 bg-white border-r border-gray-200 overflow-y-auto p-6 space-y-8 shadow-sm">
+          <div>
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">页面设置</h3>
+            <div className="p-4 bg-gray-50 rounded-2xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <ShieldAlert className="w-4 h-4 text-orange-500 mr-2" />
+                  <span className="text-sm font-bold text-gray-700">18禁年龄确认</span>
+                </div>
+                <button 
+                  onClick={() => setEnableAgeVerification(!enableAgeVerification)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${enableAgeVerification ? 'bg-blue-600' : 'bg-gray-200'}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enableAgeVerification ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+              <p className="text-[10px] text-gray-400 font-medium leading-relaxed">
+                开启后，用户访问该落地页时将首先看到年龄确认弹窗。
+              </p>
+            </div>
+          </div>
+
           <div>
             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">添加组件</h3>
             <div className="grid grid-cols-2 gap-3">

@@ -65,7 +65,8 @@ async def create_page(
         seo_title=request.seo_title or request.name,
         seo_description=request.seo_description,
         seo_keywords=request.seo_keywords,
-        is_published=request.is_published if request.is_published is not None else False
+        is_published=request.is_published if request.is_published is not None else False,
+        enable_age_verification=request.enable_age_verification if request.enable_age_verification is not None else False
     )
     
     db.add(db_page)
@@ -238,6 +239,9 @@ async def update_page(
         if request.is_published:
             update_data["published_at"] = datetime.now()
     
+    if request.enable_age_verification is not None:
+        update_data["enable_age_verification"] = request.enable_age_verification
+    
     # 增加版本号
     update_data["version"] = page.version + 1
     
@@ -307,6 +311,7 @@ async def copy_page(
         seo_description=page.seo_description,
         seo_keywords=page.seo_keywords,
         is_published=False,  # 复制后默认不发布
+        enable_age_verification=page.enable_age_verification,
         meta=page.meta,
         thumbnail_url=page.thumbnail_url
     )

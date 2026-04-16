@@ -10,6 +10,7 @@ import Testimonials from '@/components/testimonials/Testimonials'
 import CTA from '@/components/cta/CTA'
 import About from '@/components/about/About'
 import Disclaimer from '@/components/disclaimer/Disclaimer'
+import AgeVerificationModal from '@/components/modals/AgeVerificationModal'
 import { Loader2, Globe, AlertCircle } from 'lucide-react'
 import { API_BASE_URL } from '@/config'
 
@@ -137,6 +138,14 @@ export default function PublicLandingPage() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* 18禁年龄确认弹窗 */}
+      {pageData.enable_age_verification && (
+        <AgeVerificationModal 
+          pageId={pageData.id} 
+          onVerify={() => {}} 
+        />
+      )}
+      
       {/* 动态渲染配置中的组件 */}
       {pageData.config?.components?.map((comp: any) => renderComponent(comp))}
       

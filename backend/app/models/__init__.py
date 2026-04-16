@@ -75,6 +75,9 @@ class Page(Base):
     is_published = Column(Boolean, default=False)
     published_at = Column(DateTime(timezone=True), nullable=True)
     
+    # 18禁弹窗配置
+    enable_age_verification = Column(Boolean, default=False)
+    
     # 元数据
     meta = Column(JSON, nullable=True)  # OG标签、自定义头尾脚本等
     thumbnail_url = Column(String(500), nullable=True)

@@ -92,6 +92,7 @@ class PageCreateRequest(BaseModel):
     seo_title: Optional[str] = None
     seo_description: Optional[str] = None
     seo_keywords: Optional[str] = None
+    enable_age_verification: Optional[bool] = False
 
 class PageUpdateRequest(BaseModel):
     name: Optional[str] = None
@@ -104,6 +105,7 @@ class PageUpdateRequest(BaseModel):
     seo_keywords: Optional[str] = None
     thumbnail_url: Optional[str] = None
     meta: Optional[Dict[str, Any]] = None
+    enable_age_verification: Optional[bool] = None
 
 class PagePublishRequest(BaseModel):
     is_published: bool
@@ -124,6 +126,7 @@ class PageSchema(BaseModel):
     seo_keywords: Optional[str]
     is_published: bool
     published_at: Optional[datetime]
+    enable_age_verification: bool
     thumbnail_url: Optional[str]
     view_count: int
     clone_count: int

@@ -81,7 +81,7 @@ async def track_event(
     result = await db.execute(
         update(Page)
         .where(Page.id == page_id)
-        .values(**update_values)
+        .values(update_values)
     )
     
     if result.rowcount == 0:
