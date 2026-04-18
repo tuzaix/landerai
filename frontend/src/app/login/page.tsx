@@ -39,15 +39,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-      <div className="mb-8 self-start ml-4 sm:ml-0 sm:self-center">
-        <Link 
-          href="/" 
-          className="inline-flex items-center text-gray-500 hover:text-blue-600 font-medium transition-colors group"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-          返回首页
-        </Link>
-      </div>
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-[2.5rem] shadow-2xl shadow-blue-500/5 border border-gray-100 animate-in fade-in zoom-in duration-500">
         <div className="text-center">
           <div className="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-500/20 rotate-6 hover:rotate-0 transition-transform duration-500">

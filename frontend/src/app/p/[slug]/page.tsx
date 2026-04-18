@@ -76,9 +76,6 @@ export default function PublicLandingPage() {
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">抱歉，页面无法访问</h1>
           <p className="text-gray-500 mb-8">{error}</p>
-          <a href="/" className="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all">
-            返回首页
-          </a>
         </div>
       </div>
     )
@@ -95,32 +92,30 @@ export default function PublicLandingPage() {
         return <Features key={comp.id} {...props} />
       case 'form':
         return (
-          <div key={comp.id} className="py-20 px-4 bg-gray-50">
-            <div className="max-w-xl mx-auto bg-white p-8 rounded-[2rem] shadow-xl shadow-gray-200/50">
-              <Form 
-                {...props} 
-                onSubmit={async (data) => {
-                  try {
-                    await axios.post(`${API_BASE_URL}/leads/submit/${pageData.id}`, {
-                      name: data.name,
-                      email: data.email,
-                      phone: data.phone,
-                      message: data.message || '通过落地页表单提交'
-                    })
-                    
-                    // 埋点统计：上报转化事件
-                    await axios.post(`${API_BASE_URL}/stats/event/${pageData.id}`, {
-                      event_type: 'conversion',
-                      device_type: window.innerWidth < 768 ? 'mobile' : 'desktop',
-                      user_agent: navigator.userAgent
-                    })
-                  } catch (e) {
-                    console.error('Submission or tracking error:', e)
-                    throw e // 让 Form 组件处理错误显示
-                  }
-                }}
-              />
-            </div>
+          <div key={comp.id} className={`${props.layout === 'floating' ? 'py-0' : 'py-20'} px-4 bg-gray-50`}>
+            <Form 
+              {...props} 
+              onSubmit={async (data) => {
+                try {
+                  await axios.post(`${API_BASE_URL}/leads/submit/${pageData.id}`, {
+                    name: data.name || data.email?.split('@')[0],
+                    email: data.email,
+                    phone: data.phone,
+                    message: data.message || '通过落地页表单提交'
+                  })
+                  
+                  // 埋点统计：上报转化事件
+                  await axios.post(`${API_BASE_URL}/stats/event/${pageData.id}`, {
+                    event_type: 'conversion',
+                    device_type: window.innerWidth < 768 ? 'mobile' : 'desktop',
+                    user_agent: navigator.userAgent
+                  })
+                } catch (e) {
+                  console.error('Submission or tracking error:', e)
+                  throw e // 让 Form 组件处理错误显示
+                }
+              }}
+            />
           </div>
         )
       case 'testimonials':

@@ -1,7 +1,37 @@
 import React from 'react';
 import { TestimonialProps } from '@/types/components';
 
-const Testimonials: React.FC<TestimonialProps> = ({ testimonials, isMobile }) => {
+const Testimonials: React.FC<TestimonialProps> = ({ testimonials, isMobile, layout = 'grid' }) => {
+  if (layout === 'carousel') {
+    return (
+      <section className={`py-32 bg-slate-900 ${isMobile ? 'px-4' : 'px-8'} overflow-hidden`}>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl font-black text-white mb-4 tracking-tight">客户的声音</h2>
+            <p className="text-slate-400 text-lg">听听全球领先企业如何评价我们</p>
+          </div>
+          <div className="relative">
+            {/* 简化版 Carousel，实际生产中可使用 Swiper.js */}
+            <div className="flex overflow-x-auto gap-8 pb-8 no-scrollbar snap-x">
+              {testimonials.map((testimonial, index) => (
+                <div key={index} className="flex-shrink-0 w-full md:w-[600px] bg-slate-800 p-12 rounded-[3rem] border border-slate-700 snap-center">
+                  <p className="text-2xl text-white font-medium italic mb-10 leading-relaxed">&quot;{testimonial.content}&quot;</p>
+                  <div className="flex items-center">
+                    <img src={testimonial.avatar} alt={testimonial.name} className="w-16 h-16 rounded-full border-2 border-blue-500" />
+                    <div className="ml-4 text-left">
+                      <h4 className="text-white font-bold text-xl">{testimonial.name}</h4>
+                      <p className="text-blue-400 font-bold uppercase tracking-widest text-xs">{testimonial.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className={`py-32 bg-white ${isMobile ? 'px-4' : 'px-8'} relative`}>
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>

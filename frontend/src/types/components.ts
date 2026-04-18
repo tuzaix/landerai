@@ -15,6 +15,8 @@ export interface HeroProps {
   imageUrl: string;
   /** 是否是移动端 */
   isMobile: boolean;
+  /** 布局样式 */
+  layout?: 'split' | 'centered' | 'minimal' | 'dark';
 }
 
 /**
@@ -29,6 +31,8 @@ export interface FeatureProps {
     imageUrl?: string;
   }>;
   isMobile: boolean;
+  /** 布局样式 */
+  layout?: 'grid' | 'alternating' | 'horizontal' | 'list';
 }
 
 /**
@@ -43,6 +47,8 @@ export interface TestimonialProps {
     content: string;
   }>;
   isMobile: boolean;
+  /** 布局样式 */
+  layout?: 'grid' | 'carousel' | 'bubbles';
 }
 
 /**
@@ -62,6 +68,8 @@ export interface FormProps {
   submitText: string;
   /** 提交回调 */
   onSubmit?: (data: any) => Promise<void>;
+  /** 布局样式 */
+  layout?: 'card' | 'inline' | 'floating';
 }
 
 /**
@@ -73,4 +81,6 @@ export interface CtaProps {
   buttonText: string;
   buttonLink: string;
   isMobile: boolean;
+  /** 布局样式 */
+  layout?: 'standard' | 'simple' | 'card';
 }

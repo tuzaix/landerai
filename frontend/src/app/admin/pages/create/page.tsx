@@ -21,7 +21,7 @@ import {
   Settings,
   Globe,
   Loader2,
-  Image as ImageIconPicker,
+  Zap,
   ShieldAlert,
   Users
 } from 'lucide-react'
@@ -77,14 +77,30 @@ const COMPONENT_TEMPLATES: Record<string, any> = {
     subtitle: '探索前所未有的科技魅力',
     buttonText: '立即购买',
     buttonLink: '#',
-    imageUrl: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?q=80&w=2070&auto=format&fit=crop'
+    imageUrl: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?q=80&w=2070&auto=format&fit=crop',
+    layout: 'split'
   },
   features: {
     features: [
       { icon: 'Zap', title: '超高性能', description: '搭载最新一代处理器，运行速度提升 50%', imageUrl: '' },
       { icon: 'Shield', title: '安全可靠', description: '全方位隐私保护，您的数据只属于您', imageUrl: '' },
       { icon: 'Smile', title: '简单易用', description: '直观的用户界面，上手即用，无需学习成本', imageUrl: '' }
-    ]
+    ],
+    layout: 'grid'
+  },
+  testimonials: {
+    testimonials: [
+      { name: '张经理', role: 'CEO, TechCorp', avatar: 'https://i.pravatar.cc/150?u=1', content: '这是我用过最好的落地页生成系统，极大地提升了我们的转化率。' },
+      { name: '李总', role: 'Marketing Director', avatar: 'https://i.pravatar.cc/150?u=2', content: 'AI 生成的内容非常专业，适配性也很强。' }
+    ],
+    layout: 'grid'
+  },
+  cta: {
+    title: '准备好开启您的增长之旅了吗？',
+    subtitle: '现在加入，享受 30 天免费试用。',
+    buttonText: '立即开始',
+    buttonLink: '#',
+    layout: 'standard'
   },
   form: {
     fields: [
@@ -92,7 +108,8 @@ const COMPONENT_TEMPLATES: Record<string, any> = {
       { name: 'email', type: 'email', label: '邮箱地址', required: true },
       { name: 'phone', type: 'phone', label: '联系电话', required: false }
     ],
-    submitText: '提交申请'
+    submitText: '提交申请',
+    layout: 'card'
   },
   about: {
     title: '关于我们',
@@ -300,6 +317,24 @@ export default function CreatePage() {
                 </div>
                 <span className="text-xs font-bold text-gray-600 mt-2 group-hover:text-blue-600">免责声明</span>
               </button>
+              <button 
+                onClick={() => addComponent('testimonials')}
+                className="flex flex-col items-center justify-center p-4 bg-gray-50 border border-transparent rounded-2xl hover:bg-blue-50 hover:border-blue-200 group transition-all"
+              >
+                <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-gray-400 group-hover:text-blue-500 transition-colors">
+                  <Users className="w-6 h-6" />
+                </div>
+                <span className="text-xs font-bold text-gray-600 mt-2 group-hover:text-blue-600">客户评价</span>
+              </button>
+              <button 
+                onClick={() => addComponent('cta')}
+                className="flex flex-col items-center justify-center p-4 bg-gray-50 border border-transparent rounded-2xl hover:bg-blue-50 hover:border-blue-200 group transition-all"
+              >
+                <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-gray-400 group-hover:text-blue-500 transition-colors">
+                  <Zap className="w-6 h-6" />
+                </div>
+                <span className="text-xs font-bold text-gray-600 mt-2 group-hover:text-blue-600">行动呼吁</span>
+              </button>
             </div>
           </div>
 
@@ -380,6 +415,27 @@ export default function CreatePage() {
                       <div className="grid grid-cols-2 gap-6">
                         <div className="col-span-2">
                           <label className="text-xs font-bold text-gray-500 mb-2 block flex items-center">
+                            <Settings className="w-3 h-3 mr-1" /> 布局样式选择
+                          </label>
+                          <div className="grid grid-cols-4 gap-3">
+                            {[
+                              { id: 'split', name: '标准分栏' },
+                              { id: 'centered', name: '居中对齐' },
+                              { id: 'minimal', name: '极简无图' },
+                              { id: 'dark', name: '深色商务' }
+                            ].map(layout => (
+                              <button
+                                key={layout.id}
+                                onClick={() => updateComponentData(comp.id, 'layout', layout.id)}
+                                className={`py-2 px-3 rounded-lg text-[10px] font-bold border transition-all ${comp.data.layout === layout.id ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-100 hover:border-blue-200'}`}
+                              >
+                                {layout.name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="col-span-2">
+                          <label className="text-xs font-bold text-gray-500 mb-2 block flex items-center">
                             <Type className="w-3 h-3 mr-1" /> 主标题
                           </label>
                           <input 
@@ -424,7 +480,7 @@ export default function CreatePage() {
                         </div>
                         <div className="col-span-2">
                           <label className="text-xs font-bold text-gray-500 mb-2 block flex items-center">
-                            <ImageIconPicker className="w-3 h-3 mr-1" /> 背景图片 URL
+                            <ImageIcon className="w-3 h-3 mr-1" /> 背景图片 URL
                           </label>
                           <div className="flex space-x-3">
                             <input 
@@ -438,7 +494,7 @@ export default function CreatePage() {
                               onClick={() => setAssetPickerConfig({ id: comp.id, field: 'imageUrl', value: comp.data.imageUrl || '' })}
                               className="px-4 py-3 bg-blue-50 text-blue-600 rounded-xl font-bold text-xs hover:bg-blue-100 transition-colors flex items-center whitespace-nowrap"
                             >
-                              <ImageIconPicker className="w-4 h-4 mr-2" />
+                              <ImageIcon className="w-4 h-4 mr-2" />
                               素材库
                             </button>
                           </div>
@@ -448,28 +504,37 @@ export default function CreatePage() {
 
                     {comp.type === 'features' && (
                       <div className="space-y-6">
+                        <div>
+                          <label className="text-xs font-bold text-gray-500 mb-2 block flex items-center">
+                            <Settings className="w-3 h-3 mr-1" /> 布局样式选择
+                          </label>
+                          <div className="grid grid-cols-4 gap-3">
+                            {[
+                              { id: 'grid', name: '网格卡片' },
+                              { id: 'alternating', name: '交替分栏' },
+                              { id: 'list', name: '简洁列表' }
+                            ].map(layout => (
+                              <button
+                                key={layout.id}
+                                onClick={() => updateComponentData(comp.id, 'layout', layout.id)}
+                                className={`py-2 px-3 rounded-lg text-[10px] font-bold border transition-all ${comp.data.layout === layout.id ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-100 hover:border-blue-200'}`}
+                              >
+                                {layout.name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                         {(comp.data.features || []).map((feature: any, i: number) => (
                           <div key={i} className="p-6 bg-gray-50 rounded-2xl relative group/item">
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                              {/* 卖点图片选择器 */}
-                              <div className="md:col-span-1">
-                                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-2">卖点图片</label>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="col-span-2 flex items-center space-x-4">
                                 <div 
                                   onClick={() => setAssetPickerConfig({ id: comp.id, field: `features.${i}.imageUrl`, value: feature.imageUrl || '' })}
-                                  className="aspect-square bg-white border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all overflow-hidden group/img"
+                                  className="w-16 h-16 bg-white rounded-xl flex items-center justify-center cursor-pointer border border-gray-100 overflow-hidden"
                                 >
-                                  {feature.imageUrl ? (
-                                    <img src={feature.imageUrl} alt={feature.title} className="w-full h-full object-cover" />
-                                  ) : (
-                                    <ImageIconPicker className="w-6 h-6 text-gray-300 group-hover/img:text-blue-500" />
-                                  )}
+                                  {feature.imageUrl ? <img src={feature.imageUrl} className="w-full h-full object-cover" /> : <ImageIcon className="w-4 h-4 text-gray-300" />}
                                 </div>
-                              </div>
-                              
-                              {/* 卖点内容编辑 */}
-                              <div className="md:col-span-3 space-y-4">
-                                <div>
-                                  <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">卖点标题</label>
+                                <div className="flex-1">
                                   <input 
                                     type="text" 
                                     value={feature.title}
@@ -478,23 +543,22 @@ export default function CreatePage() {
                                       newFeatures[i].title = e.target.value
                                       updateComponentData(comp.id, 'features', newFeatures)
                                     }}
-                                    className="w-full bg-white font-bold text-gray-900 border border-gray-100 rounded-lg px-3 py-2 focus:border-blue-500 outline-none transition-all"
-                                    placeholder="输入标题"
+                                    className="w-full bg-white font-bold text-gray-900 border border-gray-100 rounded-lg px-3 py-2 text-sm focus:border-blue-500 outline-none transition-all"
+                                    placeholder="功能标题"
                                   />
                                 </div>
-                                <div>
-                                  <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">描述内容</label>
-                                  <textarea 
-                                    value={feature.description}
-                                    onChange={(e) => {
-                                      const newFeatures = [...comp.data.features]
-                                      newFeatures[i].description = e.target.value
-                                      updateComponentData(comp.id, 'features', newFeatures)
-                                    }}
-                                    className="w-full bg-white text-sm text-gray-900 border border-gray-100 rounded-lg px-3 py-2 h-20 focus:border-blue-500 outline-none transition-all"
-                                    placeholder="详细描述..."
-                                  ></textarea>
-                                </div>
+                              </div>
+                              <div className="col-span-2">
+                                <textarea 
+                                  value={feature.description}
+                                  onChange={(e) => {
+                                    const newFeatures = [...comp.data.features]
+                                    newFeatures[i].description = e.target.value
+                                    updateComponentData(comp.id, 'features', newFeatures)
+                                  }}
+                                  className="w-full bg-white text-sm text-gray-500 border border-gray-100 rounded-lg px-3 py-2 h-20 focus:border-blue-500 outline-none transition-all"
+                                  placeholder="功能详细描述..."
+                                ></textarea>
                               </div>
                             </div>
                             <button 
@@ -502,7 +566,7 @@ export default function CreatePage() {
                                 const newFeatures = comp.data.features.filter((_: any, idx: number) => idx !== i)
                                 updateComponentData(comp.id, 'features', newFeatures)
                               }}
-                              className="absolute top-4 right-4 text-gray-300 hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                              className="absolute top-2 right-2 text-gray-300 hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition-opacity"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -510,35 +574,91 @@ export default function CreatePage() {
                         ))}
                         <button 
                           onClick={() => {
-                            const newFeatures = [...(comp.data.features || []), { icon: 'Zap', title: '新卖点', description: '新描述', imageUrl: '' }]
+                            const newFeatures = [...(comp.data.features || []), { icon: 'Zap', title: '新功能', description: '描述信息' }]
                             updateComponentData(comp.id, 'features', newFeatures)
                           }}
-                          className="w-full py-4 border-2 border-dashed border-gray-200 rounded-2xl text-gray-400 font-bold text-sm hover:border-blue-300 hover:text-blue-500 hover:bg-blue-50 transition-all flex items-center justify-center"
+                          className="w-full py-3 border-2 border-dashed border-gray-200 rounded-2xl text-gray-400 font-bold text-xs hover:border-blue-300 hover:text-blue-500 hover:bg-blue-50 transition-all flex items-center justify-center"
                         >
-                          <Plus className="w-4 h-4 mr-2" /> 添加新卖点
+                          <Plus className="w-3 h-3 mr-2" /> 添加新功能项
                         </button>
                       </div>
                     )}
 
                     {comp.type === 'form' && (
                       <div className="space-y-6">
+                        <div>
+                          <label className="text-xs font-bold text-gray-500 mb-2 block flex items-center">
+                            <Settings className="w-3 h-3 mr-1" /> 布局样式选择
+                          </label>
+                          <div className="grid grid-cols-4 gap-3">
+                            {[
+                              { id: 'card', name: '标准卡片' },
+                              { id: 'inline', name: '横向简约' },
+                              { id: 'floating', name: '浮动悬浮' }
+                            ].map(layout => (
+                              <button
+                                key={layout.id}
+                                onClick={() => updateComponentData(comp.id, 'layout', layout.id)}
+                                className={`py-2 px-3 rounded-lg text-[10px] font-bold border transition-all ${comp.data.layout === layout.id ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-100 hover:border-blue-200'}`}
+                              >
+                                {layout.name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                         <div className="space-y-3">
                           <label className="text-xs font-bold text-gray-500 block">表单字段配置</label>
                           {(comp.data.fields || []).map((field: any, i: number) => (
-                            <div key={i} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-                              <GripVertical className="w-4 h-4 text-gray-300" />
-                              <div className="flex-1 text-sm font-bold text-gray-700">{field.label}</div>
-                              <div className="text-xs text-gray-400 bg-white px-2 py-1 rounded-lg border border-gray-100">{field.type}</div>
-                              {field.required && <span className="text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded">必填</span>}
+                            <div key={i} className="flex items-center space-x-2 bg-gray-50 p-3 rounded-xl">
+                              <input 
+                                type="text" 
+                                value={field.label}
+                                onChange={(e) => {
+                                  const newFields = [...comp.data.fields]
+                                  newFields[i].label = e.target.value
+                                  updateComponentData(comp.id, 'fields', newFields)
+                                }}
+                                className="flex-1 bg-white text-xs font-bold border border-gray-100 rounded-lg px-3 py-1.5 outline-none"
+                              />
+                              <select 
+                                value={field.type}
+                                onChange={(e) => {
+                                  const newFields = [...comp.data.fields]
+                                  newFields[i].type = e.target.value
+                                  updateComponentData(comp.id, 'fields', newFields)
+                                }}
+                                className="bg-white text-[10px] font-bold border border-gray-100 rounded-lg px-2 py-1.5 outline-none"
+                              >
+                                <option value="text">文本</option>
+                                <option value="email">邮箱</option>
+                                <option value="phone">电话</option>
+                              </select>
+                              <button 
+                                onClick={() => {
+                                  const newFields = comp.data.fields.filter((_: any, idx: number) => idx !== i)
+                                  updateComponentData(comp.id, 'fields', newFields)
+                                }}
+                                className="text-gray-300 hover:text-red-500"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                             </div>
                           ))}
+                          <button 
+                            onClick={() => {
+                              const newFields = [...(comp.data.fields || []), { name: `field_${Date.now()}`, type: 'text', label: '新字段', required: true }]
+                              updateComponentData(comp.id, 'fields', newFields)
+                            }}
+                            className="w-full py-2 border border-dashed border-gray-200 rounded-xl text-gray-400 font-bold text-[10px] hover:border-blue-300 hover:text-blue-500 transition-all"
+                          >
+                            + 添加字段
+                          </button>
                         </div>
-                        <button className="w-full py-3 bg-blue-50 text-blue-600 rounded-xl font-bold text-xs hover:bg-blue-100 transition-colors">管理字段设置</button>
                         <div>
                           <label className="text-xs font-bold text-gray-500 mb-2 block">提交按钮文字</label>
                           <input 
                             type="text" 
-                            value={comp.data.submitText || ''}
+                            value={comp.data.submitText}
                             onChange={(e) => updateComponentData(comp.id, 'submitText', e.target.value)}
                             className="w-full px-4 py-3 bg-gray-50 text-gray-900 border border-transparent rounded-xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium"
                           />
@@ -546,67 +666,221 @@ export default function CreatePage() {
                       </div>
                     )}
 
-                    {/* 关于我们编辑视图 */}
                     {comp.type === 'about' && (
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">标题</label>
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="col-span-2">
+                          <label className="text-xs font-bold text-gray-500 mb-2 block flex items-center">
+                            <Type className="w-3 h-3 mr-1" /> 关于标题
+                          </label>
                           <input 
                             type="text" 
-                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"
-                            value={comp.data.title}
+                            value={comp.data.title || ''}
                             onChange={(e) => updateComponentData(comp.id, 'title', e.target.value)}
+                            className="w-full px-4 py-3 bg-gray-50 text-gray-900 border border-transparent rounded-xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium"
                           />
                         </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">图片地址</label>
-                          <div className="flex gap-2">
-                            <input 
-                              type="text" 
-                              className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"
-                              value={comp.data.imageUrl}
-                              onChange={(e) => updateComponentData(comp.id, 'imageUrl', e.target.value)}
-                            />
-                            <button 
-                              onClick={() => setAssetPickerConfig({ id: comp.id, field: 'imageUrl', value: comp.data.imageUrl })}
-                              className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600 transition-colors"
-                            >
-                              <ImageIconPicker className="w-5 h-5" />
-                            </button>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">内容</label>
+                        <div className="col-span-2">
+                          <label className="text-xs font-bold text-gray-500 mb-2 block flex items-center">
+                            <Type className="w-3 h-3 mr-1" /> 内容详情
+                          </label>
                           <textarea 
-                            rows={6}
-                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"
-                            value={comp.data.content}
+                            value={comp.data.content || ''}
                             onChange={(e) => updateComponentData(comp.id, 'content', e.target.value)}
-                          />
+                            className="w-full px-4 py-3 bg-gray-50 text-gray-900 border border-transparent rounded-xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium h-48"
+                          ></textarea>
+                        </div>
+                        <div className="col-span-2">
+                          <label className="text-xs font-bold text-gray-500 mb-2 block">配图</label>
+                          <div 
+                            onClick={() => setAssetPickerConfig({ id: comp.id, field: 'imageUrl', value: comp.data.imageUrl || '' })}
+                            className="w-full h-48 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 hover:border-blue-300 transition-all overflow-hidden"
+                          >
+                            {comp.data.imageUrl ? (
+                              <img src={comp.data.imageUrl} className="w-full h-full object-cover" />
+                            ) : (
+                              <>
+                                <ImageIcon className="w-8 h-8 text-gray-300 mb-2" />
+                                <span className="text-xs text-gray-400 font-medium">点击选择图片</span>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
                     )}
 
-                    {/* 免责声明编辑视图 */}
                     {comp.type === 'disclaimer' && (
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">标题</label>
+                      <div className="space-y-6">
+                        <div className="col-span-2">
+                          <label className="text-xs font-bold text-gray-500 mb-2 block flex items-center">
+                            <ShieldAlert className="w-3 h-3 mr-1" /> 免责声明标题
+                          </label>
                           <input 
                             type="text" 
-                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"
-                            value={comp.data.title}
+                            value={comp.data.title || ''}
                             onChange={(e) => updateComponentData(comp.id, 'title', e.target.value)}
+                            className="w-full px-4 py-3 bg-gray-50 text-gray-900 border border-transparent rounded-xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium"
+                          />
+                        </div>
+                        <div className="col-span-2">
+                          <label className="text-xs font-bold text-gray-500 mb-2 block flex items-center">
+                            <Type className="w-3 h-3 mr-1" /> 免责声明内容
+                          </label>
+                          <textarea 
+                            value={comp.data.content || ''}
+                            onChange={(e) => updateComponentData(comp.id, 'content', e.target.value)}
+                            className="w-full px-4 py-3 bg-gray-50 text-gray-900 border border-transparent rounded-xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium h-64"
+                          ></textarea>
+                        </div>
+                      </div>
+                    )}
+
+                    {comp.type === 'testimonials' && (
+                      <div className="space-y-6">
+                        <div>
+                          <label className="text-xs font-bold text-gray-500 mb-2 block flex items-center">
+                            <Settings className="w-3 h-3 mr-1" /> 布局样式选择
+                          </label>
+                          <div className="grid grid-cols-4 gap-3">
+                            {[
+                              { id: 'grid', name: '网格卡片' },
+                              { id: 'carousel', name: '横向滚动' }
+                            ].map(layout => (
+                              <button
+                                key={layout.id}
+                                onClick={() => updateComponentData(comp.id, 'layout', layout.id)}
+                                className={`py-2 px-3 rounded-lg text-[10px] font-bold border transition-all ${comp.data.layout === layout.id ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-100 hover:border-blue-200'}`}
+                              >
+                                {layout.name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        {(comp.data.testimonials || []).map((testimonial: any, i: number) => (
+                          <div key={i} className="p-6 bg-gray-50 rounded-2xl relative group/item space-y-4">
+                            <div className="flex items-center space-x-4">
+                              <div 
+                                onClick={() => setAssetPickerConfig({ id: comp.id, field: `testimonials.${i}.avatar`, value: testimonial.avatar || '' })}
+                                className="w-12 h-12 bg-white rounded-full flex items-center justify-center cursor-pointer border-2 border-gray-200 overflow-hidden"
+                              >
+                                {testimonial.avatar ? <img src={testimonial.avatar} className="w-full h-full object-cover" /> : <ImageIcon className="w-4 h-4 text-gray-300" />}
+                              </div>
+                              <div className="flex-1 grid grid-cols-2 gap-4">
+                                <input 
+                                  type="text" 
+                                  value={testimonial.name}
+                                  onChange={(e) => {
+                                    const newTestimonials = [...comp.data.testimonials]
+                                    newTestimonials[i].name = e.target.value
+                                    updateComponentData(comp.id, 'testimonials', newTestimonials)
+                                  }}
+                                  className="bg-white font-bold text-gray-900 border border-gray-100 rounded-lg px-3 py-1.5 text-xs focus:border-blue-500 outline-none transition-all"
+                                  placeholder="姓名"
+                                />
+                                <input 
+                                  type="text" 
+                                  value={testimonial.role}
+                                  onChange={(e) => {
+                                    const newTestimonials = [...comp.data.testimonials]
+                                    newTestimonials[i].role = e.target.value
+                                    updateComponentData(comp.id, 'testimonials', newTestimonials)
+                                  }}
+                                  className="bg-white text-gray-500 border border-gray-100 rounded-lg px-3 py-1.5 text-xs focus:border-blue-500 outline-none transition-all"
+                                  placeholder="职位"
+                                />
+                              </div>
+                            </div>
+                            <textarea 
+                              value={testimonial.content}
+                              onChange={(e) => {
+                                const newTestimonials = [...comp.data.testimonials]
+                                newTestimonials[i].content = e.target.value
+                                updateComponentData(comp.id, 'testimonials', newTestimonials)
+                              }}
+                              className="w-full bg-white text-xs text-gray-600 border border-gray-100 rounded-lg px-3 py-2 h-20 focus:border-blue-500 outline-none transition-all"
+                              placeholder="评价内容..."
+                            ></textarea>
+                            <button 
+                              onClick={() => {
+                                const newTestimonials = comp.data.testimonials.filter((_: any, idx: number) => idx !== i)
+                                updateComponentData(comp.id, 'testimonials', newTestimonials)
+                              }}
+                              className="absolute top-2 right-2 text-gray-300 hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                        <button 
+                          onClick={() => {
+                            const newTestimonials = [...(comp.data.testimonials || []), { name: '新客户', role: 'CEO', avatar: '', content: '新评价内容' }]
+                            updateComponentData(comp.id, 'testimonials', newTestimonials)
+                          }}
+                          className="w-full py-3 border-2 border-dashed border-gray-200 rounded-2xl text-gray-400 font-bold text-xs hover:border-blue-300 hover:text-blue-500 hover:bg-blue-50 transition-all flex items-center justify-center"
+                        >
+                          <Plus className="w-3 h-3 mr-2" /> 添加新评价
+                        </button>
+                      </div>
+                    )}
+
+                    {comp.type === 'cta' && (
+                      <div className="space-y-6">
+                        <div>
+                          <label className="text-xs font-bold text-gray-500 mb-2 block flex items-center">
+                            <Settings className="w-3 h-3 mr-1" /> 布局样式选择
+                          </label>
+                          <div className="grid grid-cols-4 gap-3">
+                            {[
+                              { id: 'standard', name: '商务蓝' },
+                              { id: 'simple', name: '白净简约' },
+                              { id: 'card', name: '深色卡片' }
+                            ].map(layout => (
+                              <button
+                                key={layout.id}
+                                onClick={() => updateComponentData(comp.id, 'layout', layout.id)}
+                                className={`py-2 px-3 rounded-lg text-[10px] font-bold border transition-all ${comp.data.layout === layout.id ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-100 hover:border-blue-200'}`}
+                              >
+                                {layout.name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold text-gray-500 mb-2 block">CTA 标题</label>
+                          <input 
+                            type="text" 
+                            value={comp.data.title || ''}
+                            onChange={(e) => updateComponentData(comp.id, 'title', e.target.value)}
+                            className="w-full px-4 py-3 bg-gray-50 text-gray-900 border border-transparent rounded-xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">声明内容</label>
-                          <textarea 
-                            rows={8}
-                            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"
-                            value={comp.data.content}
-                            onChange={(e) => updateComponentData(comp.id, 'content', e.target.value)}
+                          <label className="text-xs font-bold text-gray-500 mb-2 block">副标题</label>
+                          <input 
+                            type="text" 
+                            value={comp.data.subtitle || ''}
+                            onChange={(e) => updateComponentData(comp.id, 'subtitle', e.target.value)}
+                            className="w-full px-4 py-3 bg-gray-50 text-gray-900 border border-transparent rounded-xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium"
                           />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-xs font-bold text-gray-500 mb-2 block">按钮文字</label>
+                            <input 
+                              type="text" 
+                              value={comp.data.buttonText || ''}
+                              onChange={(e) => updateComponentData(comp.id, 'buttonText', e.target.value)}
+                              className="w-full px-4 py-3 bg-gray-50 text-gray-900 border border-transparent rounded-xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-bold text-gray-500 mb-2 block">按钮链接</label>
+                            <input 
+                              type="text" 
+                              value={comp.data.buttonLink || ''}
+                              onChange={(e) => updateComponentData(comp.id, 'buttonLink', e.target.value)}
+                              className="w-full px-4 py-3 bg-gray-50 text-gray-900 border border-transparent rounded-xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium"
+                            />
+                          </div>
                         </div>
                       </div>
                     )}
@@ -638,6 +912,14 @@ export default function CreatePage() {
                 const newFeatures = [...comp.data.features]
                 newFeatures[index].imageUrl = url
                 updateComponentData(assetPickerConfig.id, 'features', newFeatures)
+              }
+            } else if (assetPickerConfig.field.startsWith('testimonials.')) {
+              const index = parseInt(assetPickerConfig.field.split('.')[1])
+              const comp = components.find(c => c.id === assetPickerConfig.id)
+              if (comp && comp.data.testimonials) {
+                const newTestimonials = [...comp.data.testimonials]
+                newTestimonials[index].avatar = url
+                updateComponentData(assetPickerConfig.id, 'testimonials', newTestimonials)
               }
             } else {
               updateComponentData(assetPickerConfig.id, assetPickerConfig.field, url)
