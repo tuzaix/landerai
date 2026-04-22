@@ -133,10 +133,13 @@ export default function PublicLandingPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* 18禁年龄确认弹窗 */}
-      {pageData.enable_age_verification && (
+      {/* 多步验证弹窗 (18禁、性别、Cookies) */}
+      {(pageData.enable_age_verification || pageData.enable_gender_verification || pageData.enable_cookies_consent) && (
         <AgeVerificationModal 
           pageId={pageData.id} 
+          enableAge={pageData.enable_age_verification}
+          enableGender={pageData.enable_gender_verification}
+          enableCookies={pageData.enable_cookies_consent}
           onVerify={() => {}} 
         />
       )}

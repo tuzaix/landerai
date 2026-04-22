@@ -66,7 +66,9 @@ async def create_page(
         seo_description=request.seo_description,
         seo_keywords=request.seo_keywords,
         is_published=request.is_published if request.is_published is not None else False,
-        enable_age_verification=request.enable_age_verification if request.enable_age_verification is not None else False
+        enable_age_verification=request.enable_age_verification if request.enable_age_verification is not None else False,
+        enable_gender_verification=request.enable_gender_verification if request.enable_gender_verification is not None else False,
+        enable_cookies_consent=request.enable_cookies_consent if request.enable_cookies_consent is not None else False
     )
     
     db.add(db_page)
@@ -241,6 +243,12 @@ async def update_page(
     
     if request.enable_age_verification is not None:
         update_data["enable_age_verification"] = request.enable_age_verification
+    
+    if request.enable_gender_verification is not None:
+        update_data["enable_gender_verification"] = request.enable_gender_verification
+    
+    if request.enable_cookies_consent is not None:
+        update_data["enable_cookies_consent"] = request.enable_cookies_consent
     
     # 增加版本号
     update_data["version"] = page.version + 1

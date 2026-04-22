@@ -23,7 +23,8 @@ import {
   Loader2,
   Zap,
   ShieldAlert,
-  Users
+  Users,
+  Cookie
 } from 'lucide-react'
 import AssetPicker from '@/components/admin/AssetPicker'
 import { useAuth } from '@/context/AuthContext'
@@ -128,6 +129,8 @@ export default function CreatePage() {
   const [pageName, setPageName] = useState('未命名落地页')
   const [slug, setSlug] = useState('new-landing-page')
   const [enableAgeVerification, setEnableAgeVerification] = useState(false)
+  const [enableGenderVerification, setEnableGenderVerification] = useState(false)
+  const [enableCookiesConsent, setEnableCookiesConsent] = useState(false)
   const [components, setComponents] = useState<ComponentInstance[]>([
     { id: '1', type: 'hero', data: { ...COMPONENT_TEMPLATES.hero }, isOpen: true },
     { id: '2', type: 'features', data: { ...COMPONENT_TEMPLATES.features }, isOpen: false },
@@ -181,6 +184,8 @@ export default function CreatePage() {
         name: pageName,
         slug: slug,
         enable_age_verification: enableAgeVerification,
+        enable_gender_verification: enableGenderVerification,
+        enable_cookies_consent: enableCookiesConsent,
         config: { components },
         is_published: false
       }
@@ -265,6 +270,42 @@ export default function CreatePage() {
               </div>
               <p className="text-[10px] text-gray-400 font-medium leading-relaxed">
                 开启后，用户访问该落地页时将首先看到年龄确认弹窗。
+              </p>
+            </div>
+
+            <div className="p-4 bg-gray-50 rounded-2xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Users className="w-4 h-4 text-purple-500 mr-2" />
+                  <span className="text-sm font-bold text-gray-700">性别确认弹窗</span>
+                </div>
+                <button 
+                  onClick={() => setEnableGenderVerification(!enableGenderVerification)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${enableGenderVerification ? 'bg-blue-600' : 'bg-gray-200'}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enableGenderVerification ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+              <p className="text-[10px] text-gray-400 font-medium leading-relaxed">
+                开启后，用户确认年龄后将需要选择性别。
+              </p>
+            </div>
+
+            <div className="p-4 bg-gray-50 rounded-2xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Cookie className="w-4 h-4 text-amber-500 mr-2" />
+                  <span className="text-sm font-bold text-gray-700">Cookies 确认</span>
+                </div>
+                <button 
+                  onClick={() => setEnableCookiesConsent(!enableCookiesConsent)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${enableCookiesConsent ? 'bg-blue-600' : 'bg-gray-200'}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enableCookiesConsent ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+              <p className="text-[10px] text-gray-400 font-medium leading-relaxed">
+                开启后，用户进入页面前需点击接受或拒绝 Cookies。
               </p>
             </div>
           </div>

@@ -23,7 +23,8 @@ import {
   Loader2,
   Zap,
   ShieldAlert,
-  Users
+  Users,
+  Cookie
 } from 'lucide-react'
 import AssetPicker from '@/components/admin/AssetPicker'
 import { useAuth } from '@/context/AuthContext'
@@ -95,6 +96,8 @@ export default function EditPage() {
   const [pageName, setPageName] = useState('加载中...')
   const [slug, setSlug] = useState('')
   const [enableAgeVerification, setEnableAgeVerification] = useState(false)
+  const [enableGenderVerification, setEnableGenderVerification] = useState(false)
+  const [enableCookiesConsent, setEnableCookiesConsent] = useState(false)
   const [components, setComponents] = useState<ComponentInstance[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -108,10 +111,12 @@ export default function EditPage() {
         headers: { Authorization: `Bearer ${token}` }
       }
       const response = await axios.get(`${API_BASE_URL}/pages/${id}`, config)
-      const { name, slug, enable_age_verification, config: pageConfig } = response.data
+      const { name, slug, enable_age_verification, enable_gender_verification, enable_cookies_consent, config: pageConfig } = response.data
       setPageName(name)
       setSlug(slug)
       setEnableAgeVerification(!!enable_age_verification)
+      setEnableGenderVerification(!!enable_gender_verification)
+      setEnableCookiesConsent(!!enable_cookies_consent)
       setComponents(pageConfig.components || [])
     } catch (err) {
       console.error('Failed to fetch page:', err)
@@ -171,6 +176,8 @@ export default function EditPage() {
       const payload = {
         name: pageName,
         enable_age_verification: enableAgeVerification,
+        enable_gender_verification: enableGenderVerification,
+        enable_cookies_consent: enableCookiesConsent,
         config: { components }
       }
       
@@ -264,6 +271,42 @@ export default function EditPage() {
               </div>
               <p className="text-[10px] text-gray-400 font-medium leading-relaxed">
                 开启后，用户访问该落地页时将首先看到年龄确认弹窗。
+              </p>
+            </div>
+
+            <div className="p-4 bg-gray-50 rounded-2xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Users className="w-4 h-4 text-purple-500 mr-2" />
+                  <span className="text-sm font-bold text-gray-700">性别确认弹窗</span>
+                </div>
+                <button 
+                  onClick={() => setEnableGenderVerification(!enableGenderVerification)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${enableGenderVerification ? 'bg-blue-600' : 'bg-gray-200'}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enableGenderVerification ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+              <p className="text-[10px] text-gray-400 font-medium leading-relaxed">
+                开启后，用户确认年龄后将需要选择性别。
+              </p>
+            </div>
+
+            <div className="p-4 bg-gray-50 rounded-2xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Cookie className="w-4 h-4 text-amber-500 mr-2" />
+                  <span className="text-sm font-bold text-gray-700">Cookies 确认</span>
+                </div>
+                <button 
+                  onClick={() => setEnableCookiesConsent(!enableCookiesConsent)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${enableCookiesConsent ? 'bg-blue-600' : 'bg-gray-200'}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enableCookiesConsent ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+              <p className="text-[10px] text-gray-400 font-medium leading-relaxed">
+                开启后，用户进入页面前需点击接受或拒绝 Cookies。
               </p>
             </div>
           </div>

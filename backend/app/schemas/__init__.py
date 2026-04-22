@@ -93,6 +93,8 @@ class PageCreateRequest(BaseModel):
     seo_description: Optional[str] = None
     seo_keywords: Optional[str] = None
     enable_age_verification: Optional[bool] = False
+    enable_gender_verification: Optional[bool] = False
+    enable_cookies_consent: Optional[bool] = False
 
 class PageUpdateRequest(BaseModel):
     name: Optional[str] = None
@@ -106,6 +108,8 @@ class PageUpdateRequest(BaseModel):
     thumbnail_url: Optional[str] = None
     meta: Optional[Dict[str, Any]] = None
     enable_age_verification: Optional[bool] = None
+    enable_gender_verification: Optional[bool] = None
+    enable_cookies_consent: Optional[bool] = None
 
 class PagePublishRequest(BaseModel):
     is_published: bool
@@ -127,6 +131,8 @@ class PageSchema(BaseModel):
     is_published: bool
     published_at: Optional[datetime]
     enable_age_verification: bool
+    enable_gender_verification: bool
+    enable_cookies_consent: bool
     thumbnail_url: Optional[str]
     view_count: int
     clone_count: int
